@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysite-admin
+  labels:
+    app: mysite-admin
+spec:
+  containers:
+    - name: mysite-admin-nginx
+      image: soohyunn/nginx-webserver:latest
+      imagePullPolicy: Always
+      volumeMounts:
+        - mountPath: /static
+          name: nginx-admin-static
+        - mountPath: /etc/nginx/conf.d
+          name: nginx-admin-config
+      ports:
+        - containerPort: 80
+
+    - name: mysite-django
+      image: soohyunn/mydjangosite:latest
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 8000
+      volumeMounts:
+        - mountPath: /code/.static_root
+          name: mysite-admin-volume
+      command: ["/bin/bash"]
+      args: ["-c", "python3 manage.py makemigrations && python3 manage.py migrate
+      && python3 manage.py collectstatic --no-input && gunicorn --bind 0.0.0.0:8000 config.wsgi"]
+      
+  restartPolicy: Always
+  nodeSelector:
+    hw: cpu
+  volumes:
+    - name: mysite-admin-volume
+      hostPath:
+        path: /home/static-admin
+    - name: nginx-admin-static
+      hostPath:
+        path: /home/static-admin
+    - name: nginx-admin-config
+      hostPath:
+        path: /home/nginx/admin-config

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deplyment
+metadata:
+  name: django-deployment
+  labels:
+    app: mysite-django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysite-django
+  template:
+    metadata:
+      labels:
+        app: mysite-django
+    spec:
+      containers:
+      - name: mysite-django
+        image: soohyunn/mydjangosite:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+
+  
